@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useCallback, useContext } from "react";
 import { useEffect, useState } from "react";
 
 const CitiesContext = createContext();
@@ -25,18 +25,21 @@ function CitiesProvider({ children }) {
     fetchCities();
   }, []);
 
-  async function getCurrentCity(id) {
-    try {
-      setIsLoading(true);
-      const res = await fetch(`${BASE_URL}/cities/${id}`);
-      const data = await res.json();
-      setCurrentCity(data);
-    } catch {
-      alert("Problem Fetching Data");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const getCurrentCity = useCallback(
+    async function getCurrentCity(id) {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`${BASE_URL}/cities/${id}`);
+        const data = await res.json();
+        setCurrentCity(data);
+      } catch {
+        alert("Problem Fetching Data");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [id]
+  );
 
   async function createCity(newCity) {
     try {
@@ -97,7 +100,7 @@ function CitiesProvider({ children }) {
   function nearestCity(position) {
     const filteredCity = cities.filter((city) => {
       const distance = calculateDistance(position, city.position);
-      return distance <= 5;
+      return distance <= 10;
     });
 
     setFilteredCities(filteredCity);
